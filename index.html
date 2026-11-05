@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Portal de Proveedores · Haulotte / Horizon</title>
+<meta name="color-scheme" content="light dark">
+<style>
+:root{--bg:#f3f5f8;--panel:#fff;--panel2:#eef1f5;--bd:#dde2e8;--tx:#1a1d21;--dim:#5c6570;--ac:#0b3b66;--ac2:#f39200;--acfg:#fff;--ok:#15803d;--warn:#b45309;--err:#dc2626;--okbg:#e3f6e9;--warnbg:#fff1d6;--errbg:#fde4e4;--inf:#eaf7ee;--infbd:#7cc795;--mis:#fff4e0;--misbd:#f0b252;--sh:0 4px 18px #0001}
+:root[data-theme=dark]{--bg:#0e1116;--panel:#171b22;--panel2:#1e242d;--bd:#2b323d;--tx:#e8ebf0;--dim:#97a1ae;--ac:#38bdf8;--ac2:#f39200;--acfg:#06202e;--ok:#4ade80;--warn:#fbbf24;--err:#f87171;--okbg:#12301e;--warnbg:#33290f;--errbg:#3a1717;--inf:#10301c;--infbd:#2e7d4a;--mis:#352a10;--misbd:#a8741f;--sh:0 4px 18px #0006}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0e1116;--panel:#171b22;--panel2:#1e242d;--bd:#2b323d;--tx:#e8ebf0;--dim:#97a1ae;--ac:#38bdf8;--ac2:#f39200;--acfg:#06202e;--ok:#4ade80;--warn:#fbbf24;--err:#f87171;--okbg:#12301e;--warnbg:#33290f;--errbg:#3a1717;--inf:#10301c;--infbd:#2e7d4a;--mis:#352a10;--misbd:#a8741f;--sh:0 4px 18px #0006}}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+button,input,select{font:inherit;color:inherit}
+.hide{display:none!important}.dim{color:var(--dim)}.r{text-align:right}
+/* auth */
+.auth{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px}
+.box{width:100%;max-width:440px;background:var(--panel);border:1px solid var(--bd);border-radius:16px;box-shadow:var(--sh);padding:26px}
+.brand{display:flex;align-items:center;gap:10px;margin-bottom:6px}.brand i{width:34px;height:34px;border-radius:9px;background:var(--ac);display:grid;place-items:center;color:var(--acfg);font-style:normal;font-weight:800}
+h1{font-size:20px;margin:0}h2{font-size:17px;margin:0 0 4px}h3{font-size:14px;margin:0 0 8px}
+label{display:block;font-size:12px;color:var(--dim);margin:12px 0 4px}
+input,select{width:100%;padding:10px 12px;background:var(--panel);border:1px solid var(--bd);border-radius:9px;outline:none}
+input:focus,select:focus{border-color:var(--ac);box-shadow:0 0 0 3px color-mix(in srgb,var(--ac) 25%,transparent)}
+input.ocr{background:var(--inf);border-color:var(--infbd)}input.miss{background:var(--mis);border-color:var(--misbd)}input.bad{border-color:var(--err)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;background:var(--ac2);color:#fff;border:0;border-radius:10px;padding:10px 16px;font-weight:700;cursor:pointer}
+.btn.pri{background:var(--ac);color:var(--acfg)}.btn.sec{background:var(--panel2);color:var(--tx);border:1px solid var(--bd);font-weight:600}.btn.sm{padding:5px 10px;font-size:12.5px;border-radius:8px}.btn.full{width:100%;margin-top:16px}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.msg{border-radius:10px;padding:10px 12px;margin-top:12px;font-size:13px}.msg.err{background:var(--errbg);color:var(--err)}.msg.ok{background:var(--okbg);color:var(--ok)}.msg.warn{background:var(--warnbg);color:var(--warn)}
+.link{color:var(--ac);cursor:pointer;background:none;border:0;padding:0;text-decoration:underline}
+.tg{position:fixed;top:12px;right:12px;z-index:50}
+.ib{width:38px;height:38px;border-radius:10px;border:1px solid var(--bd);background:var(--panel);cursor:pointer;font-size:16px}
+/* app */
+.app{display:grid;grid-template-columns:230px 1fr;min-height:100vh}
+.side{background:var(--panel);border-right:1px solid var(--bd);padding:16px 12px;display:flex;flex-direction:column;gap:4px;position:sticky;top:0;height:100vh}
+.nv{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:0;background:none;cursor:pointer;text-align:left;color:var(--dim);font-weight:600;width:100%}
+.nv.on{background:var(--panel2);color:var(--tx)}.nv:hover{background:var(--panel2)}
+.main{padding:22px 26px 80px;min-width:0}
+.top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:18px;flex-wrap:wrap}
+.who{font-size:12px;color:var(--dim)}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.card{background:var(--panel);border:1px solid var(--bd);border-radius:14px;padding:14px}
+.card .k{font-size:12px;color:var(--dim)}.card .v{font-size:22px;font-weight:800;margin-top:2px}
+.panel{background:var(--panel);border:1px solid var(--bd);border-radius:14px;padding:16px;margin-bottom:16px}
+.tw{overflow:auto}table{width:100%;border-collapse:collapse}th{text-align:left;font-size:11.5px;color:var(--dim);font-weight:600;padding:8px 10px;background:var(--panel2);white-space:nowrap}td{padding:9px 10px;border-top:1px solid var(--bd);vertical-align:top}
+.tag{display:inline-block;border-radius:20px;padding:2px 10px;font-size:11.5px;font-weight:700;white-space:nowrap}
+.t-recibida{background:var(--panel2);color:var(--dim)}.t-en_revision{background:var(--warnbg);color:var(--warn)}.t-contabilizada{background:var(--okbg);color:var(--ok)}.t-rechazada{background:var(--errbg);color:var(--err)}
+.seg{display:flex;gap:8px}.seg button{flex:1;padding:11px;border-radius:10px;border:1px solid var(--bd);background:var(--panel);cursor:pointer;font-weight:700}.seg button.on{background:var(--ac);color:var(--acfg);border-color:var(--ac)}
+.split{display:grid;grid-template-columns:minmax(320px,440px) 1fr;gap:18px;align-items:start}
+.drop{border:2px dashed var(--bd);border-radius:14px;padding:22px;text-align:center;cursor:pointer;background:var(--panel2)}.drop:hover,.drop.ov{border-color:var(--ac)}
+.prev{height:calc(100vh - 150px);min-height:420px;border:1px solid var(--bd);border-radius:14px;background:var(--panel2);overflow:hidden}.prev iframe{width:100%;height:100%;border:0}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.bar{height:5px;border-radius:3px;background:var(--panel2);overflow:hidden;margin-top:8px}.bar i{display:block;height:100%;background:var(--ac2);width:0;transition:width .2s}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.filters select{width:auto}
+.cards-m{display:none}
+.bot{display:none}
+@media(max-width:860px){
+ .app{grid-template-columns:1fr}.side{display:none}.main{padding:16px 14px 90px}
+ .cards{grid-template-columns:1fr 1fr}.split{grid-template-columns:1fr}.prev{height:420px}
+ .bot{display:flex;position:fixed;left:0;right:0;bottom:0;background:var(--panel);border-top:1px solid var(--bd);padding:6px 4px calc(6px + env(safe-area-inset-bottom));z-index:20}
+ .bot button{flex:1;background:none;border:0;padding:6px 2px;font-size:10.5px;color:var(--dim);display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer}.bot button b{font-size:19px;font-weight:400}.bot button.on{color:var(--ac);font-weight:700}
+ .tw.resp table,.tw.resp thead{display:none}.cards-m{display:block}
+ .mc{background:var(--panel2);border:1px solid var(--bd);border-radius:12px;padding:11px;margin-bottom:8px}.mc .sp{display:flex;justify-content:space-between;gap:8px;align-items:center}
+ .tg{top:8px;right:8px}.row2{grid-template-columns:1fr}
+}
+</style></head><body>
+<button class="ib tg" id="btn-theme" title="Modo claro / oscuro" aria-label="Modo claro / oscuro">🌓</button>
+
+<!-- AUTENTICACIÓN -->
+<div class="auth" id="v-auth"><div class="box">
+  <div class="brand"><i>P</i><div><h1>Portal de Proveedores</h1><div class="dim" style="font-size:12px">HAULOTTE · HORIZON</div></div></div>
+  <div id="a-login">
+    <p class="dim">Ingresá para cargar tus facturas y consultar tu cuenta corriente.</p>
+    <label>Email</label><input id="l-email" type="email" autocomplete="username">
+    <label>Contraseña</label><input id="l-pass" type="password" autocomplete="current-password">
+    <button class="btn pri full" id="l-go">Ingresar</button>
+    <div id="l-msg"></div>
+    <p style="margin-top:16px"><button class="link" id="l-reg">Soy proveedor y quiero crear mi cuenta</button> · <button class="link" id="l-forgot">Olvidé mi contraseña</button></p>
+  </div>
+  <div id="a-reg" class="hide">
+    <h2>Crear mi cuenta</h2>
+    <p class="dim">Para verificar que sos el proveedor, necesitamos tu CUIT y los datos de un comprobante que te hayamos registrado o pagado (factura u orden de pago).</p>
+    <label>CUIT (sin guiones)</label><input id="r-cuit" inputmode="numeric" maxlength="13">
+    <label>N° de un comprobante nuestro (ej: A0041-02795894 o N° de orden de pago)</label><input id="r-num">
+    <label>Fecha de ese comprobante</label><input id="r-fecha" type="date">
+    <label>Email con el que vas a ingresar</label><input id="r-email" type="email" autocomplete="email">
+    <label>Contraseña (mínimo 8 caracteres)</label><input id="r-pass" type="password" autocomplete="new-password">
+    <button class="btn pri full" id="r-go">Solicitar acceso</button>
+    <div id="r-msg"></div>
+    <p style="margin-top:14px"><button class="link" id="r-back">Volver a ingresar</button></p>
+  </div>
+  <div id="a-forgot" class="hide">
+    <h2>Recuperar contraseña</h2><p class="dim">Te enviaremos un enlace a tu email.</p>
+    <label>Email</label><input id="f-email" type="email">
+    <button class="btn pri full" id="f-go">Enviar enlace</button><div id="f-msg"></div>
+    <p style="margin-top:14px"><button class="link" id="f-back">Volver</button></p>
+  </div>
+  <div id="a-newpass" class="hide">
+    <h2>Nueva contraseña</h2>
+    <label>Contraseña nueva (mínimo 8)</label><input id="n-pass" type="password" autocomplete="new-password">
+    <button class="btn pri full" id="n-go">Guardar</button><div id="n-msg"></div>
+  </div>
+</div></div>
+
+<!-- ESTADO DE CUENTA DE ACCESO -->
+<div class="auth hide" id="v-estado"><div class="box" style="text-align:center">
+  <div style="font-size:44px" id="e-ico">⏳</div><h2 id="e-tit"></h2><p class="dim" id="e-txt"></p>
+  <div id="e-retry" class="hide" style="text-align:left">
+    <label>CUIT</label><input id="e-cuit" inputmode="numeric"><label>N° de un comprobante nuestro</label><input id="e-num"><label>Fecha del comprobante</label><input id="e-fecha" type="date">
+    <button class="btn pri full" id="e-go">Reintentar validación</button>
+  </div>
+  <div id="e-msg"></div>
+  <button class="btn sec full" id="e-out">Salir</button>
+</div></div>
+
+<!-- APLICACIÓN -->
+<div class="app hide" id="v-app">
+  <aside class="side">
+    <div class="brand" style="padding:6px 8px 14px"><i>P</i><div><b>Proveedores</b><div class="dim" style="font-size:11px">Haulotte · Horizon</div></div></div>
+    <button class="nv on" data-v="inicio">🏠 Inicio</button>
+    <button class="nv" data-v="cargar">📤 Cargar factura</button>
+    <button class="nv" data-v="facturas">🧾 Mis facturas</button>
+    <button class="nv" data-v="cc">📒 Cuenta corriente</button>
+    <button class="nv" data-v="op">💳 Órdenes de pago</button>
+    <div style="flex:1"></div>
+    <div class="who" id="who-side" style="padding:8px"></div>
+    <button class="nv" id="btn-out">↩ Salir</button>
+  </aside>
+  <main class="main">
+    <div class="top"><div><h1 id="p-tit"></h1><div class="who" id="who"></div></div></div>
+    <section id="s-inicio"></section>
+    <section id="s-cargar" class="hide"></section>
+    <section id="s-facturas" class="hide"></section>
+    <section id="s-cc" class="hide"></section>
+    <section id="s-op" class="hide"></section>
+  </main>
+  <nav class="bot">
+    <button class="on" data-v="inicio"><b>🏠</b>Inicio</button><button data-v="cargar"><b>📤</b>Cargar</button><button data-v="facturas"><b>🧾</b>Facturas</button><button data-v="cc"><b>📒</b>Cuenta</button><button data-v="op"><b>💳</b>Pagos</button>
+  </nav>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+const SUPABASE_URL="https://beeeccdcgborcorqvtps.supabase.co", SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJlZWVjY2RjZ2JvcmNvcnF2dHBzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMwMDcyNDMsImV4cCI6MjA5ODU4MzI0M30.7ZLEr2d0punnAgEGkeIcX0i1qKF_hRM2nx_0VFxGc4w";
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money=v=>v==null?'—':'$ '+Number(v).toLocaleString('es-AR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fdate=d=>{const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(d||''));return m?`${m[3]}/${m[2]}/${m[1]}`:'—'};
+const EMP={haulotte:'Haulotte',horizon:'Horizon'};
+const ESTADO={recibida:'Recibida',en_revision:'En revisión',contabilizada:'Contabilizada',rechazada:'Rechazada'};
+const tag=e=>`<span class="tag t-${e}">${ESTADO[e]||e}</span>`;
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+
+/* ---------- tema ---------- */
+function setTheme(t){document.documentElement.setAttribute('data-theme',t);try{localStorage.setItem('pp-theme',t)}catch(e){}}
+(function(){let t=null;try{t=localStorage.getItem('pp-theme')}catch(e){}if(t)document.documentElement.setAttribute('data-theme',t)})();
+$('btn-theme').onclick=()=>{const cur=document.documentElement.getAttribute('data-theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');setTheme(cur==='dark'?'light':'dark')};
+
+/* ---------- CUIT ---------- */
+function cuitOk(c){c=String(c||'').replace(/\D/g,'');if(c.length!==11)return false;const w=[5,4,3,2,7,6,5,4,3,2];let s=0;for(let i=0;i<10;i++)s+=w[i]*+c[i];let d=11-s%11;if(d===11)d=0;if(d===10)d=9;return d===+c[10]}
+const cuitFmt=c=>{c=String(c||'');return c.length===11?`${c.slice(0,2)}-${c.slice(2,10)}-${c.slice(10)}`:c};
+const show=(id,on=true)=>$(id).classList.toggle('hide',!on);
+const msg=(id,t,k='err')=>{$(id).innerHTML=t?`<div class="msg ${k}">${esc(t)}</div>`:''};
+function pane(n){['a-login','a-reg','a-forgot','a-newpass'].forEach(x=>show(x,x===n))}
+
+/* ---------- auth ---------- */
+let YO=null, ESTADOS=null, DATA={fc:[],cc:[],op:[],ce:[]}, VIEW='inicio';
+$('l-reg').onclick=()=>pane('a-reg');$('r-back').onclick=()=>pane('a-login');$('l-forgot').onclick=()=>pane('a-forgot');$('f-back').onclick=()=>pane('a-login');
+$('l-go').onclick=async()=>{
+  msg('l-msg','');const email=$('l-email').value.trim(),password=$('l-pass').value;if(!email||!password)return msg('l-msg','Completá email y contraseña');
+  $('l-go').disabled=true;const {error}=await sb.auth.signInWithPassword({email,password});$('l-go').disabled=false;
+  if(error)return msg('l-msg',/confirm/i.test(error.message)?'Primero confirmá tu email con el enlace que te enviamos.':'Email o contraseña incorrectos.');
+  arrancar();
+};
+$('l-pass').addEventListener('keydown',e=>{if(e.key==='Enter')$('l-go').click()});
+$('r-go').onclick=async()=>{
+  msg('r-msg','');const cuit=$('r-cuit').value.replace(/\D/g,''),num=$('r-num').value.trim(),fecha=$('r-fecha').value,email=$('r-email').value.trim(),pass=$('r-pass').value;
+  if(!cuitOk(cuit))return msg('r-msg','El CUIT no es válido. Revisá los 11 dígitos.');
+  if(!num||!fecha)return msg('r-msg','Indicá el comprobante y su fecha.');
+  if(!/^\S+@\S+\.\S+$/.test(email))return msg('r-msg','Ingresá un email válido.');
+  if(pass.length<8)return msg('r-msg','La contraseña debe tener al menos 8 caracteres.');
+  $('r-go').disabled=true;
+  const {error}=await sb.auth.signUp({email,password:pass,options:{emailRedirectTo:location.origin+location.pathname,data:{pp_cuit:cuit,pp_num:num,pp_fecha:fecha}}});
+  $('r-go').disabled=false;
+  if(error)return msg('r-msg',/registered|already/i.test(error.message)?'Ese email ya tiene una cuenta. Ingresá o recuperá tu contraseña.':'No pudimos crear la cuenta: '+error.message);
+  msg('r-msg','Te enviamos un correo para confirmar tu email. Después de confirmarlo, ingresá: validaremos tus datos y Haulotte/Horizon aprobará tu acceso.','ok');
+};
+$('f-go').onclick=async()=>{
+  const email=$('f-email').value.trim();if(!email)return msg('f-msg','Ingresá tu email');
+  await sb.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});
+  msg('f-msg','Si el email existe, te enviamos un enlace para cambiar la contraseña.','ok');
+};
+$('n-go').onclick=async()=>{const p=$('n-pass').value;if(p.length<8)return msg('n-msg','Mínimo 8 caracteres');
+  const {error}=await sb.auth.updateUser({password:p});if(error)return msg('n-msg','No se pudo guardar: '+error.message);
+  msg('n-msg','Contraseña actualizada.','ok');setTimeout(arrancar,900)};
+async function salir(){await sb.auth.signOut();YO=null;show('v-app',false);show('v-estado',false);show('v-auth');pane('a-login')}
+$('btn-out').onclick=salir;$('e-out').onclick=salir;
+
+async function arrancar(){
+  const {data:{session}}=await sb.auth.getSession();
+  if(!session){show('v-app',false);show('v-estado',false);show('v-auth');return}
+  let {data:est}=await sb.rpc('portal_mi_estado');est=est||{};
+  if(!est.estado){
+    const md=session.user.user_metadata||{};
+    if(md.pp_cuit) {const r=await sb.rpc('portal_solicitar_registro',{p_cuit:md.pp_cuit,p_numero:md.pp_num||'',p_fecha:md.pp_fecha||null});
+      if(r.data&&r.data.ok){({data:est}=await sb.rpc('portal_mi_estado'));est=est||{}}
+      else return pantallaEstado('datos',r.data&&r.data.error)}
+    else return pantallaEstado('datos')
+  }
+  if(est.estado==='aprobado'){YO=est;show('v-auth',false);show('v-estado',false);show('v-app');await cargarTodo();ir('inicio');return}
+  pantallaEstado(est.estado,null,est);
+}
+function pantallaEstado(e,err,est){
+  show('v-auth',false);show('v-app',false);show('v-estado');show('e-retry',false);msg('e-msg','');
+  const T={
+   pendiente:['⏳','Solicitud en revisión','Verificamos tus datos. Te avisaremos cuando tu acceso esté habilitado (hasta 1 día hábil). Podés volver a ingresar más tarde.'],
+   rechazado:['⛔','Solicitud rechazada','No pudimos habilitar tu acceso. Comunicate con Haulotte/Horizon.'],
+   bloqueado:['⛔','Acceso bloqueado','Tu acceso está suspendido. Comunicate con Haulotte/Horizon.'],
+   datos:['❓',err==='limite'?'Demasiados intentos':'No pudimos validar tus datos',err==='limite'?'Esperá una hora antes de reintentar.':'El CUIT o el comprobante no coinciden con nuestros registros. Revisalos e intentá de nuevo.']}[e];
+  $('e-ico').textContent=T[0];$('e-tit').textContent=T[1];$('e-txt').textContent=T[2];
+  if(est&&est.motivo)$('e-txt').textContent+=' Motivo: '+est.motivo;
+  if(e==='datos'&&err!=='limite')show('e-retry');
+}
+$('e-go').onclick=async()=>{
+  const cuit=$('e-cuit').value.replace(/\D/g,'');if(!cuitOk(cuit))return msg('e-msg','CUIT inválido');
+  const r=await sb.rpc('portal_solicitar_registro',{p_cuit:cuit,p_numero:$('e-num').value.trim(),p_fecha:$('e-fecha').value||null});
+  if(r.data&&r.data.ok)arrancar();else pantallaEstado('datos',r.data&&r.data.error);
+};
+
+/* ---------- datos ---------- */
+async function cargarTodo(){
+  const [fc,cc,op,ce]=await Promise.all([
+    sb.from('portal_facturas').select('*').order('created_at',{ascending:false}),
+    sb.from('portal_cuenta_corriente').select('*').order('fecha',{ascending:false}).limit(5000),
+    sb.from('portal_ordenes_pago').select('*').order('fecha',{ascending:false}),
+    sb.from('portal_certificados').select('*').order('fecha',{ascending:false})]);
+  DATA={fc:fc.data||[],cc:cc.data||[],op:op.data||[],ce:ce.data||[]};
+  $('who').textContent=`${YO.razon_social} · CUIT ${cuitFmt(YO.cuit)}`;$('who-side').textContent=YO.razon_social;
+}
+const TITULOS={inicio:'Inicio',cargar:'Cargar factura',facturas:'Mis facturas',cc:'Cuenta corriente',op:'Órdenes de pago'};
+function ir(v){VIEW=v;['inicio','cargar','facturas','cc','op'].forEach(x=>show('s-'+x,x===v));
+  document.querySelectorAll('[data-v]').forEach(b=>b.classList.toggle('on',b.dataset.v===v));$('p-tit').textContent=TITULOS[v];
+  ({inicio:vInicio,cargar:vCargar,facturas:vFacturas,cc:vCC,op:vOP})[v]();scrollTo(0,0)}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-v]');if(b)ir(b.dataset.v)});
+
+/* ---------- vistas ---------- */
+function saldoCC(l){return l.reduce((a,x)=>a+(x.saldo_abierto!=null?+x.saldo_abierto:(+x.haber-+x.debe)),0)}
+function vInicio(){
+  const hoy=new Date().toISOString().slice(0,10);
+  const abiertos=DATA.cc.filter(x=>x.saldo_abierto!=null&&+x.saldo_abierto!==0);
+  const saldo=abiertos.reduce((a,x)=>a+ +x.saldo_abierto,0), venc=abiertos.filter(x=>x.vencimiento&&x.vencimiento<hoy).reduce((a,x)=>a+ +x.saldo_abierto,0);
+  const rev=DATA.fc.filter(f=>f.estado==='recibida'||f.estado==='en_revision').length, ult=DATA.op[0];
+  $('s-inicio').innerHTML=`<div class="cards">
+   <div class="card"><div class="k">Saldo a cobrar</div><div class="v">${money(saldo)}</div></div>
+   <div class="card"><div class="k">Vencido</div><div class="v" style="color:${venc?'var(--err)':'inherit'}">${money(venc)}</div></div>
+   <div class="card"><div class="k">Facturas en proceso</div><div class="v">${rev}</div></div>
+   <div class="card"><div class="k">Último pago</div><div class="v">${ult?money(ult.importe):'—'}</div><div class="k">${ult?fdate(ult.fecha)+' · '+EMP[ult.empresa]:''}</div></div></div>
+   <div class="panel"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><h3 style="margin:0">Últimas facturas cargadas</h3><button class="btn sm" data-v="cargar">+ Cargar factura</button></div>${tablaFc(DATA.fc.slice(0,6))}</div>`;
+}
+function tablaFc(l){
+  if(!l.length)return '<p class="dim">Todavía no cargaste facturas.</p>';
+  const rows=l.map(f=>`<tr><td>${fdate(f.created_at)}</td><td>${EMP[f.empresa]}</td><td>${esc(f.numero_fc)}</td><td>${fdate(f.fecha_emision)}</td><td class="r">${money(f.importe_total)}</td><td>${tag(f.estado)}${f.motivo_rechazo?`<div class="dim" style="font-size:12px;max-width:260px">${esc(f.motivo_rechazo)}</div>`:''}</td><td><button class="btn sec sm" data-pdf="${esc(f.pdf_path)}">PDF</button></td></tr>`).join('');
+  const cards=l.map(f=>`<div class="mc"><div class="sp"><b>${esc(f.numero_fc)}</b>${tag(f.estado)}</div><div class="dim" style="font-size:12.5px">${EMP[f.empresa]} · ${fdate(f.fecha_emision)} · ${money(f.importe_total)}</div>${f.motivo_rechazo?`<div class="msg err">${esc(f.motivo_rechazo)}</div>`:''}<div style="margin-top:6px"><button class="btn sec sm" data-pdf="${esc(f.pdf_path)}">Ver PDF</button></div></div>`).join('');
+  return `<div class="tw resp"><table><thead><tr><th>Cargada</th><th>Empresa</th><th>N° factura</th><th>Emisión</th><th class="r">Total</th><th>Estado</th><th></th></tr></thead><tbody>${rows}</tbody></table><div class="cards-m">${cards}</div></div>`;
+}
+function vFacturas(){
+  $('s-facturas').innerHTML=`<div class="panel"><div class="filters"><select id="ff-e"><option value="">Ambas empresas</option><option value="haulotte">Haulotte</option><option value="horizon">Horizon</option></select><select id="ff-s"><option value="">Todos los estados</option>${Object.keys(ESTADO).map(k=>`<option value="${k}">${ESTADO[k]}</option>`).join('')}</select><input id="ff-q" placeholder="Buscar N° de factura" style="max-width:220px"></div><div id="ff-t"></div></div>`;
+  const f=()=>{const e=$('ff-e').value,s=$('ff-s').value,q=$('ff-q').value.toLowerCase();$('ff-t').innerHTML=tablaFc(DATA.fc.filter(x=>(!e||x.empresa===e)&&(!s||x.estado===s)&&(!q||x.numero_fc.toLowerCase().includes(q))))};
+  ['ff-e','ff-s','ff-q'].forEach(i=>$(i).oninput=f);f();
+}
+function vCC(){
+  $('s-cc').innerHTML=`<div class="panel"><div class="filters"><select id="cc-e"><option value="">Ambas empresas</option><option value="haulotte">Haulotte</option><option value="horizon">Horizon</option></select><select id="cc-s"><option value="abiertos">Solo saldos abiertos</option><option value="todos">Todos los movimientos</option></select><div style="flex:1"></div><button class="btn sec sm" id="cc-x">Exportar Excel</button></div><div id="cc-t"></div></div>`;
+  const get=()=>{const e=$('cc-e').value,s=$('cc-s').value;return DATA.cc.filter(x=>(!e||x.empresa===e)&&(s==='todos'||(x.saldo_abierto!=null&&+x.saldo_abierto!==0)))};
+  const f=()=>{const l=get();const hoy=new Date().toISOString().slice(0,10);
+   if(!l.length){$('cc-t').innerHTML='<p class="dim">No hay movimientos para mostrar.</p>';return}
+   const rows=l.map(x=>`<tr><td>${fdate(x.fecha)}</td><td>${EMP[x.empresa]}</td><td>${esc(x.tipo)}</td><td>${esc(x.numero)}</td><td>${fdate(x.vencimiento)}</td><td class="r">${+x.debe?money(x.debe):''}</td><td class="r">${+x.haber?money(x.haber):''}</td><td class="r" style="${x.vencimiento&&x.vencimiento<hoy&&+x.saldo_abierto?'color:var(--err);font-weight:700':''}">${x.saldo_abierto==null?'':money(x.saldo_abierto)}</td></tr>`).join('');
+   const cards=l.map(x=>`<div class="mc"><div class="sp"><b>${esc(x.tipo)} ${esc(x.numero)}</b><b>${x.saldo_abierto==null?'':money(x.saldo_abierto)}</b></div><div class="dim" style="font-size:12.5px">${EMP[x.empresa]} · ${fdate(x.fecha)} · vence ${fdate(x.vencimiento)}</div></div>`).join('');
+   $('cc-t').innerHTML=`<div class="tw resp"><table><thead><tr><th>Fecha</th><th>Empresa</th><th>Tipo</th><th>Número</th><th>Vence</th><th class="r">Debe</th><th class="r">Haber</th><th class="r">Saldo abierto</th></tr></thead><tbody>${rows}</tbody></table><div class="cards-m">${cards}</div></div>`};
+  ['cc-e','cc-s'].forEach(i=>$(i).oninput=f);f();
+  $('cc-x').onclick=()=>{const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(get().map(x=>({Fecha:x.fecha,Empresa:EMP[x.empresa],Tipo:x.tipo,Número:x.numero,Vencimiento:x.vencimiento,Debe:+x.debe,Haber:+x.haber,'Saldo abierto':x.saldo_abierto}))),'Cuenta corriente');XLSX.writeFile(wb,'cuenta_corriente.xlsx')};
+}
+function vOP(){
+  if(!DATA.op.length){$('s-op').innerHTML='<div class="panel"><p class="dim">Todavía no hay órdenes de pago publicadas.</p></div>';return}
+  const dl=(p,t)=>p?`<button class="btn sec sm" data-pdf="${esc(p)}">${t}</button>`:'';
+  $('s-op').innerHTML=DATA.op.map(o=>{const ces=DATA.ce.filter(c=>c.op_id===o.id);
+   return `<div class="panel"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center"><div><b>OP ${esc(o.numero_op)}</b> <span class="dim">· ${EMP[o.empresa]} · ${fdate(o.fecha)}</span></div><div><b>${money(o.importe)}</b></div></div>
+   <div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap">${dl(o.pdf_path,'⬇ Orden de pago')||'<span class="dim">PDF de la orden aún no disponible</span>'}${ces.map(c=>dl(c.pdf_path,`⬇ Cert. ${esc(c.impuesto)} ${esc(c.numero)} (${money(c.importe)})`)||`<span class="dim">Cert. ${esc(c.impuesto)} ${esc(c.numero)} · ${money(c.importe)}</span>`).join('')}</div></div>`}).join('');
+}
+document.addEventListener('click',async e=>{const b=e.target.closest('[data-pdf]');if(!b||!b.dataset.pdf)return;
+  const {data,error}=await sb.storage.from('portal-proveedores').createSignedUrl(b.dataset.pdf,300);
+  if(error||!data)return alert('No se pudo abrir el archivo.');window.open(data.signedUrl,'_blank','noopener')});
+
+/* ---------- carga de factura + OCR ---------- */
+let FILE=null, PREVURL=null, EMPRESA=null, OCRM={};
+const CAMPOS=[['numero_fc','N° de factura (ej: A 0041-02795894)','text'],['fecha_emision','Fecha de emisión','date'],['fecha_vencimiento','Fecha de vencimiento (de pago)','date'],['importe_neto','Importe sin impuestos','text'],['importe_total','Importe con impuestos (total)','text'],['cae','N° de CAE (14 dígitos)','text'],['cae_vto','Vencimiento del CAE','date']];
+function vCargar(){
+  FILE=null;OCRM={};EMPRESA=null;
+  $('s-cargar').innerHTML=`<div class="split"><div class="panel">
+   <label style="margin-top:0">¿A qué empresa corresponde la factura?</label>
+   <div class="seg"><button data-emp="haulotte">HAULOTTE</button><button data-emp="horizon">HORIZON</button></div>
+   <label>Factura en PDF</label>
+   <div class="drop" id="drop"><div style="font-size:26px">📄</div><div id="drop-t"><b>Elegí o arrastrá el PDF</b><div class="dim" style="font-size:12px">Intentaremos leer los datos automáticamente</div></div><input type="file" id="fi" accept="application/pdf" class="hide"></div>
+   <div class="bar hide" id="ocr-bar"><i id="ocr-i"></i></div><div class="dim" id="ocr-s" style="font-size:12px;margin-top:4px"></div>
+   <div id="campos">${CAMPOS.map(([k,l,t])=>`<label>${l}</label><input id="c-${k}" data-k="${k}" type="${t}" ${t==='text'?'inputmode="'+(k==='numero_fc'?'text':'decimal')+'"':''} autocomplete="off">`).join('')}</div>
+   <div class="dim" style="font-size:12px;margin-top:8px"><span style="color:var(--ok)">■</span> leído del PDF · <span style="color:var(--warn)">■</span> completalo vos. Todos los campos y el PDF son obligatorios.</div>
+   <div id="c-msg"></div><button class="btn full" id="c-go">Enviar factura</button></div>
+   <div class="prev" id="prev"><div class="dim" style="padding:24px">La vista previa del PDF aparecerá acá.</div></div></div>`;
+  document.querySelectorAll('[data-emp]').forEach(b=>b.onclick=()=>{EMPRESA=b.dataset.emp;document.querySelectorAll('[data-emp]').forEach(x=>x.classList.toggle('on',x===b))});
+  const fi=$('fi'),drop=$('drop');drop.onclick=()=>fi.click();fi.onchange=()=>fi.files[0]&&tomarArchivo(fi.files[0]);
+  drop.ondragover=e=>{e.preventDefault();drop.classList.add('ov')};drop.ondragleave=()=>drop.classList.remove('ov');
+  drop.ondrop=e=>{e.preventDefault();drop.classList.remove('ov');const f=e.dataTransfer.files[0];f&&tomarArchivo(f)};
+  CAMPOS.forEach(([k])=>$('c-'+k).addEventListener('input',()=>{$('c-'+k).classList.remove('ocr','bad','miss')}));
+  $('c-go').onclick=enviarFactura;
+}
+async function tomarArchivo(f){
+  if(f.type!=='application/pdf'&&!/\.pdf$/i.test(f.name))return msg('c-msg','El archivo debe ser un PDF.');
+  if(f.size>10*1024*1024)return msg('c-msg','El PDF no puede superar 10 MB.');
+  msg('c-msg','');FILE=f;$('drop-t').innerHTML=`<b>${esc(f.name)}</b><div class="dim" style="font-size:12px">${(f.size/1024).toFixed(0)} KB · tocá para cambiar</div>`;
+  if(PREVURL)URL.revokeObjectURL(PREVURL);PREVURL=URL.createObjectURL(f);$('prev').innerHTML=`<iframe src="${PREVURL}" title="Vista previa de la factura"></iframe>`;
+  CAMPOS.forEach(([k])=>{$('c-'+k).value='';$('c-'+k).classList.remove('ocr','miss','bad')});
+  try{await leerOCR(f)}catch(e){console.warn(e);$('ocr-s').textContent='No pudimos leer el PDF automáticamente. Completá los datos a mano.'}
+  CAMPOS.forEach(([k])=>{if(!$('c-'+k).value)$('c-'+k).classList.add('miss')});
+}
+const progreso=(p,t)=>{show('ocr-bar',p<100);$('ocr-i').style.width=p+'%';$('ocr-s').textContent=t||''};
+async function leerOCR(file){
+  progreso(5,'Leyendo el PDF…');pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  const pdf=await pdfjsLib.getDocument({data:await file.arrayBuffer()}).promise;let txt='';
+  for(let i=1;i<=Math.min(pdf.numPages,2);i++){const pg=await pdf.getPage(i);const c=await pg.getTextContent();txt+=c.items.map(x=>x.str).join(' ')+'\n'}
+  if(txt.replace(/\s/g,'').length<80){
+    progreso(20,'PDF escaneado: aplicando OCR (puede tardar unos segundos)…');
+    const pg=await pdf.getPage(1),vp=pg.getViewport({scale:2.2}),cv=document.createElement('canvas');cv.width=vp.width;cv.height=vp.height;
+    await pg.render({canvasContext:cv.getContext('2d'),viewport:vp}).promise;
+    const r=await Tesseract.recognize(cv,'spa',{logger:m=>{if(m.status==='recognizing text')progreso(20+Math.round(m.progress*75),'Reconociendo texto…')}});txt=r.data.text;
+  }
+  const r=parsear(txt);let n=0;
+  for(const k in r){if(r[k]){$('c-'+k).value=r[k];$('c-'+k).classList.add('ocr');n++}}
+  progreso(100,n?`Leímos ${n} de ${CAMPOS.length} datos. Revisalos y completá los que faltan.`:'No pudimos leer datos del PDF. Completalos a mano.');
+}
+function fIso(s){const m=/(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})/.exec(s||'');if(!m)return '';return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`}
+function numAR(s){s=String(s).replace(/[^\d.,]/g,'');if(!s)return null;const u=Math.max(s.lastIndexOf(','),s.lastIndexOf('.'));if(u<0)return +s;const dec=s.length-u-1;if(dec===1||dec===2)return +(s.slice(0,u).replace(/[.,]/g,'')+'.'+s.slice(u+1));return +s.replace(/[.,]/g,'')}
+function parsear(t){
+  const T=t.replace(/ /g,' ').replace(/[ \t]+/g,' '),o={};
+  let m=/CAE\s*(?:N[°ºo.]*)?\s*:?\s*(\d{14})/i.exec(T)||/\b(\d{14})\b/.exec(T);if(m)o.cae=m[1];
+  m=/(?:Vto\.?|Vencimiento|Fecha\s*de\s*Vto\.?)\s*(?:de\s*)?(?:CAE)?\s*:?\s*(\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{4})/i.exec(T.replace(/CAE\s*N[°ºo.]*\s*:?\s*\d{14}/i,'$&  '));
+  const mv=/(?:Fecha\s*de\s*Vto\.?\s*de\s*CAE|Vto\.?\s*de\s*CAE|Vencimiento\s*(?:del\s*)?CAE|Vto\.?\s*CAE)\s*:?\s*(\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{4})/i.exec(T);
+  if(mv)o.cae_vto=fIso(mv[1]);else if(o.cae){const i=T.indexOf(o.cae);const d=/(\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{4})/.exec(T.slice(i,i+120));if(d)o.cae_vto=fIso(d[1])}
+  m=/Fecha\s*de\s*Emisi[oó]n\s*:?\s*(\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{4})/i.exec(T);if(m)o.fecha_emision=fIso(m[1]);else{m=/Fecha\s*:?\s*(\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{4})/i.exec(T);if(m)o.fecha_emision=fIso(m[1])}
+  m=/Fecha\s*de\s*(?:Vto\.?|Vencimiento)\s*(?:de\s*)?(?:pago)?\s*:?\s*(\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{4})/i.exec(T.replace(/Vto\.?\s*de\s*CAE[^\d]*\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{4}/ig,''));if(m)o.fecha_vencimiento=fIso(m[1]);
+  const pv=/Punto\s*de\s*Venta\s*:?\s*(\d{1,5})/i.exec(T),cn=/Comp\.?\s*(?:Nro|N[°ºo]|Número)\.?\s*:?\s*(\d{1,8})/i.exec(T);
+  const letra=/\b(?:FACTURA|NOTA\s*DE\s*(?:CR[ÉE]DITO|D[ÉE]BITO))\s*(?:ELECTR[ÓO]NICA)?\s*([ABCEM])\b/i.exec(T)||/\bCOD\.?\s*0?(\d{2})\b/i.exec(T);
+  if(pv&&cn){let L='';if(letra&&/^[ABCEM]$/i.test(letra[1]))L=letra[1].toUpperCase();else if(letra){const c={'01':'A','06':'B','11':'C','19':'E','51':'M'}[letra[1].padStart(2,'0')];if(c)L=c}
+   o.numero_fc=(L?L+' ':'')+pv[1].padStart(4,'0')+'-'+cn[1].padStart(8,'0')}
+  m=/Importe\s*Total\s*:?\s*\$?\s*([\d.,]+)/i.exec(T);if(m){const v=numAR(m[1]);if(v)o.importe_total=v.toFixed(2).replace('.',',')}
+  m=/(?:Importe\s*Neto\s*Gravado|Subtotal|Importe\s*Neto|Neto\s*Gravado)\s*:?\s*\$?\s*([\d.,]+)/i.exec(T);if(m){const v=numAR(m[1]);if(v)o.importe_neto=v.toFixed(2).replace('.',',')}
+  return o;
+}
+async function enviarFactura(){
+  msg('c-msg','');CAMPOS.forEach(([k])=>$('c-'+k).classList.remove('bad'));
+  const v={};let faltan=[];CAMPOS.forEach(([k,l])=>{v[k]=$('c-'+k).value.trim();if(!v[k]){faltan.push(k);$('c-'+k).classList.add('bad')}});
+  if(!EMPRESA)return msg('c-msg','Elegí a qué empresa corresponde la factura.');
+  if(!FILE)return msg('c-msg','Adjuntá el PDF de la factura.');
+  if(faltan.length)return msg('c-msg','Completá todos los campos obligatorios (marcados en rojo).');
+  const neto=numAR(v.importe_neto),total=numAR(v.importe_total);
+  if(!(neto>0))return bad('importe_neto','El importe sin impuestos debe ser mayor a 0.');
+  if(!(total>=neto))return bad('importe_total','El importe con impuestos no puede ser menor al importe sin impuestos.');
+  if(!/^\d{14}$/.test(v.cae.replace(/\s/g,'')))return bad('cae','El CAE debe tener 14 dígitos.');
+  if(v.fecha_vencimiento<v.fecha_emision)return bad('fecha_vencimiento','El vencimiento no puede ser anterior a la emisión.');
+  if(v.cae_vto<v.fecha_emision)return bad('cae_vto','El vencimiento del CAE no puede ser anterior a la emisión.');
+  $('c-go').disabled=true;msg('c-msg','Enviando…','warn');
+  const path=`${YO.cuit}/facturas/${crypto.randomUUID()}.pdf`;
+  const up=await sb.storage.from('portal-proveedores').upload(path,FILE,{contentType:'application/pdf'});
+  if(up.error){$('c-go').disabled=false;return msg('c-msg','No se pudo subir el PDF: '+up.error.message)}
+  const ins=await sb.from('portal_facturas').insert({cuit:YO.cuit,user_id:(await sb.auth.getUser()).data.user.id,empresa:EMPRESA,numero_fc:v.numero_fc.toUpperCase(),fecha_emision:v.fecha_emision,fecha_vencimiento:v.fecha_vencimiento,importe_neto:neto,importe_total:total,cae:v.cae.replace(/\s/g,''),cae_vto:v.cae_vto,pdf_path:path,ocr_usado:document.querySelectorAll('#campos input.ocr').length>0});
+  $('c-go').disabled=false;
+  if(ins.error){await sb.storage.from('portal-proveedores').remove([path]);return msg('c-msg',ins.error.code==='23505'?'Esa factura ya fue cargada para esa empresa.':'No se pudo guardar: '+ins.error.message)}
+  await cargarTodo();ir('facturas');
+  function bad(k,t){$('c-'+k).classList.add('bad');msg('c-msg',t)}
+}
+window.addEventListener('DOMContentLoaded',()=>{});
+sb.auth.onAuthStateChange((ev)=>{if(ev==='PASSWORD_RECOVERY'){show('v-auth');show('v-app',false);show('v-estado',false);pane('a-newpass')}});
+arrancar();
+</script></body></html>
