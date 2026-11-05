@@ -75,10 +75,8 @@ input.ocr{background:var(--inf);border-color:var(--infbd)}input.miss{background:
   </div>
   <div id="a-reg" class="hide">
     <h2>Crear mi cuenta</h2>
-    <p class="dim">Para verificar que sos el proveedor, necesitamos tu CUIT y los datos de un comprobante que te hayamos registrado o pagado (factura u orden de pago).</p>
+    <p class="dim">Ingresá el CUIT con el que facturás a Haulotte / Horizon. Si está en nuestra base de proveedores, creás tu cuenta con el email que elijas y nosotros aprobamos el acceso.</p>
     <label>CUIT (sin guiones)</label><input id="r-cuit" inputmode="numeric" maxlength="13">
-    <label>N° de un comprobante nuestro (ej: A0041-02795894 o N° de orden de pago)</label><input id="r-num">
-    <label>Fecha de ese comprobante</label><input id="r-fecha" type="date">
     <label>Email con el que vas a ingresar</label><input id="r-email" type="email" autocomplete="email">
     <label>Contraseña (mínimo 8 caracteres)</label><input id="r-pass" type="password" autocomplete="new-password">
     <button class="btn pri full" id="r-go">Solicitar acceso</button>
@@ -102,7 +100,7 @@ input.ocr{background:var(--inf);border-color:var(--infbd)}input.miss{background:
 <div class="auth hide" id="v-estado"><div class="box" style="text-align:center">
   <div style="font-size:44px" id="e-ico">⏳</div><h2 id="e-tit"></h2><p class="dim" id="e-txt"></p>
   <div id="e-retry" class="hide" style="text-align:left">
-    <label>CUIT</label><input id="e-cuit" inputmode="numeric"><label>N° de un comprobante nuestro</label><input id="e-num"><label>Fecha del comprobante</label><input id="e-fecha" type="date">
+    <label>CUIT (11 dígitos, sin guiones)</label><input id="e-cuit" inputmode="numeric" maxlength="13">
     <button class="btn pri full" id="e-go">Reintentar validación</button>
   </div>
   <div id="e-msg"></div>
@@ -173,16 +171,15 @@ $('l-go').onclick=async()=>{
 };
 $('l-pass').addEventListener('keydown',e=>{if(e.key==='Enter')$('l-go').click()});
 $('r-go').onclick=async()=>{
-  msg('r-msg','');const cuit=$('r-cuit').value.replace(/\D/g,''),num=$('r-num').value.trim(),fecha=$('r-fecha').value,email=$('r-email').value.trim(),pass=$('r-pass').value;
+  msg('r-msg','');const cuit=$('r-cuit').value.replace(/\D/g,''),email=$('r-email').value.trim(),pass=$('r-pass').value;
   if(!cuitOk(cuit))return msg('r-msg','El CUIT no es válido. Revisá los 11 dígitos.');
-  if(!num||!fecha)return msg('r-msg','Indicá el comprobante y su fecha.');
   if(!/^\S+@\S+\.\S+$/.test(email))return msg('r-msg','Ingresá un email válido.');
   if(pass.length<8)return msg('r-msg','La contraseña debe tener al menos 8 caracteres.');
   $('r-go').disabled=true;
-  const {error}=await sb.auth.signUp({email,password:pass,options:{emailRedirectTo:location.origin+location.pathname,data:{pp_cuit:cuit,pp_num:num,pp_fecha:fecha}}});
+  const {error}=await sb.auth.signUp({email,password:pass,options:{emailRedirectTo:location.origin+location.pathname,data:{pp_cuit:cuit}}});
   $('r-go').disabled=false;
   if(error)return msg('r-msg',/registered|already/i.test(error.message)?'Ese email ya tiene una cuenta. Ingresá o recuperá tu contraseña.':'No pudimos crear la cuenta: '+error.message);
-  msg('r-msg','Te enviamos un correo para confirmar tu email. Después de confirmarlo, ingresá: validaremos tus datos y Haulotte/Horizon aprobará tu acceso.','ok');
+  msg('r-msg','Te enviamos un correo para confirmar tu email. Después de confirmarlo, ingresá: Haulotte/Horizon aprobará tu acceso.','ok');
 };
 $('f-go').onclick=async()=>{
   const email=$('f-email').value.trim();if(!email)return msg('f-msg','Ingresá tu email');
@@ -201,7 +198,7 @@ async function arrancar(){
   let {data:est}=await sb.rpc('portal_mi_estado');est=est||{};
   if(!est.estado){
     const md=session.user.user_metadata||{};
-    if(md.pp_cuit) {const r=await sb.rpc('portal_solicitar_registro',{p_cuit:md.pp_cuit,p_numero:md.pp_num||'',p_fecha:md.pp_fecha||null});
+    if(md.pp_cuit) {const r=await sb.rpc('portal_solicitar_registro',{p_cuit:md.pp_cuit});
       if(r.data&&r.data.ok){({data:est}=await sb.rpc('portal_mi_estado'));est=est||{}}
       else return pantallaEstado('datos',r.data&&r.data.error)}
     else return pantallaEstado('datos')
@@ -215,14 +212,14 @@ function pantallaEstado(e,err,est){
    pendiente:['⏳','Solicitud en revisión','Verificamos tus datos. Te avisaremos cuando tu acceso esté habilitado (hasta 1 día hábil). Podés volver a ingresar más tarde.'],
    rechazado:['⛔','Solicitud rechazada','No pudimos habilitar tu acceso. Comunicate con Haulotte/Horizon.'],
    bloqueado:['⛔','Acceso bloqueado','Tu acceso está suspendido. Comunicate con Haulotte/Horizon.'],
-   datos:['❓',err==='limite'?'Demasiados intentos':'No pudimos validar tus datos',err==='limite'?'Esperá una hora antes de reintentar.':'El CUIT o el comprobante no coinciden con nuestros registros. Revisalos e intentá de nuevo.']}[e];
+   datos:['❓',err==='limite'?'Demasiados intentos':'No pudimos validar tus datos',err==='limite'?'Esperá una hora antes de reintentar.':'El CUIT no figura en nuestra base de proveedores habilitados. Revisalo e intentá de nuevo; si es correcto, comunicate con Haulotte/Horizon.']}[e];
   $('e-ico').textContent=T[0];$('e-tit').textContent=T[1];$('e-txt').textContent=T[2];
   if(est&&est.motivo)$('e-txt').textContent+=' Motivo: '+est.motivo;
   if(e==='datos'&&err!=='limite')show('e-retry');
 }
 $('e-go').onclick=async()=>{
   const cuit=$('e-cuit').value.replace(/\D/g,'');if(!cuitOk(cuit))return msg('e-msg','CUIT inválido');
-  const r=await sb.rpc('portal_solicitar_registro',{p_cuit:cuit,p_numero:$('e-num').value.trim(),p_fecha:$('e-fecha').value||null});
+  const r=await sb.rpc('portal_solicitar_registro',{p_cuit:cuit});
   if(r.data&&r.data.ok)arrancar();else pantallaEstado('datos',r.data&&r.data.error);
 };
 
